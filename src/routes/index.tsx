@@ -143,6 +143,16 @@ function Titration() {
               <path className={running ? "drop fall" : "drop"} d="M250 200 C246 205 247 209 250 209 C253 209 254 205 250 200Z" fill="#4e9b9b" />
               <path d="M220 222 L220 259 L166 340 Q160 351 173 353 L327 353 Q340 351 334 340 L280 259 L280 222" fill="url(#glass)" stroke="#71959b" strokeWidth="2.5" />
               <rect x="160" y="305" width="180" height="52" clipPath="url(#flask)" fill={color} fillOpacity={opacity} filter={starch && pale && !done ? "url(#turbid)" : undefined} />
+              {turbidity > 0 && (
+                <g clipPath="url(#flask)">
+                  {granules.map(([cx, cy, r], i) => (
+                    <circle key={i} cx={cx} cy={cy} r={r} fill="#6f7370" fillOpacity={0.75 * turbidity} />
+                  ))}
+                  {granules.map(([cx, cy, r], i) => (
+                    <circle key={`h${i}`} cx={cx + 3} cy={cy - 4} r={r * 0.6} fill="#8a8e89" fillOpacity={0.5 * turbidity} />
+                  ))}
+                </g>
+              )}
               <path d="M215 222 H285" stroke="#71959b" strokeWidth="3" />
               <path d="M197 327 Q250 334 303 327" fill="none" stroke="#fff" strokeOpacity=".35" />
               <text x="310" y="95" fill="#6b8589" fontSize="11">Na₂S₂O₃</text>
