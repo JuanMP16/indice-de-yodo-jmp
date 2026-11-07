@@ -96,7 +96,7 @@ function Titration() {
   const color = starch && pale && !done ? "#f1f1ec" : `rgb(${base.map((c) => Math.round(c + (240 - c) * fade * 0.85)).join(",")})`;
   const opacity = done ? 0.12 : starch && pale ? 0.95 - ((p - 0.78) / 0.22) * 0.75 : 0.85 - fade * 0.5;
   const state = done ? "Punto final ilustrativo · disolución transparente" : starch && pale ? "Almidón añadido · precipitado blanco turbio" : pale ? "Color muy pálido · añadir almidón" : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color amarillento inicial · valorar con tiosulfato");
-  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "El guion indica añadir unas gotas de almidón en amarillo pálido; la coloración puede no observarse." : "Continúa gota a gota hasta que desaparezca el precipitado blanco y la disolución quede transparente.");
+  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado blanco y la disolución quede transparente.");
 
   const play = () => {
     if (running) { setRunning(false); return; }
@@ -215,7 +215,7 @@ export function computeIodine(raw: string[]): { result: string; msg: string } {
   const iy = ((b - m) * c * 12.7) / mass;
   return {
     result: n(iy) + " g I₂ / 100 g",
-    msg: iy <= 120 ? "Dentro del límite de referencia indicado en el guion (≤ 120)." : "Por encima del límite de referencia indicado en el guion (120).",
+    msg: iy <= 120 ? "Dentro del límite de referencia (≤ 120 g I₂/100 g)." : "Por encima del límite de referencia (120 g I₂/100 g).",
   };
 }
 
