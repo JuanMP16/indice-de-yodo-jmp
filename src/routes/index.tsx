@@ -93,10 +93,16 @@ function Titration() {
 
   const base = kind === "blank" ? [176, 58, 36] : [226, 184, 40];
   const fade = Math.min(p / 0.78, 1);
-  const color = starch && pale && !done ? "#f1f1ec" : `rgb(${base.map((c) => Math.round(c + (240 - c) * fade * 0.85)).join(",")})`;
+  const color = starch && pale && !done ? "#b7bab4" : `rgb(${base.map((c) => Math.round(c + (240 - c) * fade * 0.85)).join(",")})`;
+  const turbidity = starch && pale && !done ? 1 - (p - 0.78) / 0.22 : 0;
+  const granules = [
+    [205, 322, 2.4], [228, 332, 1.8], [250, 326, 2.8], [272, 334, 2.1], [292, 324, 1.7],
+    [218, 341, 2.2], [240, 346, 1.6], [262, 340, 2.5], [284, 344, 1.9], [236, 316, 1.5],
+    [258, 314, 1.9], [278, 318, 1.4], [212, 333, 1.6], [300, 338, 2.0], [246, 336, 1.3],
+  ] as const;
   const opacity = done ? 0.12 : starch && pale ? 0.95 - ((p - 0.78) / 0.22) * 0.75 : 0.85 - fade * 0.5;
-  const state = done ? "Punto final ilustrativo · disolución transparente" : starch && pale ? "Almidón añadido · precipitado blanco turbio" : pale ? "Color muy pálido · añadir almidón" : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color amarillento inicial · valorar con tiosulfato");
-  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado blanco y la disolución quede transparente.");
+  const state = done ? "Punto final ilustrativo · disolución transparente" : starch && pale ? "Almidón añadido · precipitado grisáceo turbio" : pale ? "Color muy pálido · añadir almidón" : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color amarillento inicial · valorar con tiosulfato");
+  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado grisáceo y la disolución quede transparente.");
 
   const play = () => {
     if (running) { setRunning(false); return; }
@@ -137,6 +143,16 @@ function Titration() {
               <path className={running ? "drop fall" : "drop"} d="M250 200 C246 205 247 209 250 209 C253 209 254 205 250 200Z" fill="#4e9b9b" />
               <path d="M220 222 L220 259 L166 340 Q160 351 173 353 L327 353 Q340 351 334 340 L280 259 L280 222" fill="url(#glass)" stroke="#71959b" strokeWidth="2.5" />
               <rect x="160" y="305" width="180" height="52" clipPath="url(#flask)" fill={color} fillOpacity={opacity} filter={starch && pale && !done ? "url(#turbid)" : undefined} />
+              {turbidity > 0 && (
+                <g clipPath="url(#flask)">
+                  {granules.map(([cx, cy, r], i) => (
+                    <circle key={i} cx={cx} cy={cy} r={r} fill="#6f7370" fillOpacity={0.75 * turbidity} />
+                  ))}
+                  {granules.map(([cx, cy, r], i) => (
+                    <circle key={`h${i}`} cx={cx + 3} cy={cy - 4} r={r * 0.6} fill="#8a8e89" fillOpacity={0.5 * turbidity} />
+                  ))}
+                </g>
+              )}
               <path d="M215 222 H285" stroke="#71959b" strokeWidth="3" />
               <path d="M197 327 Q250 334 303 327" fill="none" stroke="#fff" strokeOpacity=".35" />
               <text x="310" y="95" fill="#6b8589" fontSize="11">Na₂S₂O₃</text>
