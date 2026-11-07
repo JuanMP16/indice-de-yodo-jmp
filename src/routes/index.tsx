@@ -101,8 +101,8 @@ function Titration() {
     [258, 314, 1.9], [278, 318, 1.4], [212, 333, 1.6], [300, 338, 2.0], [246, 336, 1.3],
   ] as const;
   const opacity = done ? 0.12 : starch && pale ? 0.95 - ((p - 0.78) / 0.22) * 0.75 : 0.85 - fade * 0.5;
-  const state = done ? "Punto final ilustrativo · disolución transparente" : starch && pale ? "Almidón añadido · precipitado blanco turbio" : pale ? "Color muy pálido · añadir almidón" : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color amarillento inicial · valorar con tiosulfato");
-  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado blanco y la disolución quede transparente.");
+  const state = done ? "Punto final ilustrativo · disolución transparente" : starch && pale ? "Almidón añadido · precipitado grisáceo turbio" : pale ? "Color muy pálido · añadir almidón" : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color amarillento inicial · valorar con tiosulfato");
+  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado grisáceo y la disolución quede transparente.");
 
   const play = () => {
     if (running) { setRunning(false); return; }
