@@ -39,7 +39,6 @@ function Index() {
             <h1>Índice de yodo</h1>
             <p className="lead">Explora la valoración del biodiésel y del blanco, comprende el punto final y relaciona los volúmenes consumidos con el grado de insaturación.</p>
           </div>
-          <div className="badge">EXPERIENCIA INTERACTIVA</div>
         </div>
         <nav className="tabs" aria-label="Secciones">
           {tabs.map(([id, label]) => (
@@ -49,10 +48,6 @@ function Index() {
         {tab === "valoracion" && <Titration />}
         {tab === "preparacion" && <Preparation />}
         {tab === "calculo" && <Calculator />}
-        <div className="foot">
-          <span>Fuente: Guion de prácticas «Determinación de Índice de Yodo», curso 2026–2027.</span>
-          <span>Uso didáctico · Método de Wijs</span>
-        </div>
       </main>
     </>
   );
@@ -96,9 +91,12 @@ function Titration() {
     setRunning(false); setKind(k); setV(0); setStarch(false); setStarted(false); setMsg(null);
   };
 
-  const color = done ? "#eaf4ef" : starch && pale ? "#555483" : pale ? "#efd983" : "#ad641e";
-  const state = done ? "Punto final ilustrativo · color desaparecido" : starch && pale ? "Almidón añadido · continuar gota a gota" : pale ? "Amarillo pálido · añadir almidón" : "Yodo liberado · valorar con tiosulfato";
-  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "El guion indica añadir unas gotas de almidón en amarillo pálido; la coloración puede no observarse." : "Continúa gota a gota hasta la desaparición de la coloración.");
+  const base = kind === "blank" ? [176, 58, 36] : [226, 184, 40];
+  const fade = Math.min(p / 0.78, 1);
+  const color = starch && pale && !done ? "#f1f1ec" : `rgb(${base.map((c) => Math.round(c + (240 - c) * fade * 0.85)).join(",")})`;
+  const opacity = done ? 0.12 : starch && pale ? 0.95 - ((p - 0.78) / 0.22) * 0.75 : 0.85 - fade * 0.5;
+  const state = done ? "Punto final ilustrativo · disolución transparente" : starch && pale ? "Almidón añadido · precipitado blanco turbio" : pale ? "Color muy pálido · añadir almidón" : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color amarillento inicial · valorar con tiosulfato");
+  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado blanco y la disolución quede transparente.");
 
   const play = () => {
     if (running) { setRunning(false); return; }
@@ -124,6 +122,7 @@ function Titration() {
               <defs>
                 <linearGradient id="glass" x1="0" x2="1"><stop stopColor="#d6eceb" stopOpacity=".25" /><stop offset=".55" stopColor="white" stopOpacity=".65" /><stop offset="1" stopColor="#bfd8d9" stopOpacity=".35" /></linearGradient>
                 <clipPath id="flask"><path d="M220 222 L220 259 L166 340 Q160 351 173 353 L327 353 Q340 351 334 340 L280 259 L280 222Z" /></clipPath>
+                <filter id="turbid"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" result="t" /><feColorMatrix in="t" type="saturate" values="0" result="g" /><feComposite in="SourceGraphic" in2="g" operator="arithmetic" k1="0" k2="1" k3="-0.25" k4="0" /></filter>
               </defs>
               <line x1="94" y1="28" x2="94" y2="352" stroke="#a7bdbc" strokeWidth="5" />
               <path d="M55 356 H180" stroke="#a7bdbc" strokeWidth="8" strokeLinecap="round" />
@@ -137,7 +136,7 @@ function Titration() {
               <path d="M250 188 L250 199" stroke="#648a91" strokeWidth="2" />
               <path className={running ? "drop fall" : "drop"} d="M250 200 C246 205 247 209 250 209 C253 209 254 205 250 200Z" fill="#4e9b9b" />
               <path d="M220 222 L220 259 L166 340 Q160 351 173 353 L327 353 Q340 351 334 340 L280 259 L280 222" fill="url(#glass)" stroke="#71959b" strokeWidth="2.5" />
-              <rect x="160" y="305" width="180" height="52" clipPath="url(#flask)" fill={color} fillOpacity={done ? ".45" : ".8"} />
+              <rect x="160" y="305" width="180" height="52" clipPath="url(#flask)" fill={color} fillOpacity={opacity} filter={starch && pale && !done ? "url(#turbid)" : undefined} />
               <path d="M215 222 H285" stroke="#71959b" strokeWidth="3" />
               <path d="M197 327 Q250 334 303 327" fill="none" stroke="#fff" strokeOpacity=".35" />
               <text x="310" y="95" fill="#6b8589" fontSize="11">Na₂S₂O₃</text>
@@ -216,7 +215,7 @@ export function computeIodine(raw: string[]): { result: string; msg: string } {
   const iy = ((b - m) * c * 12.7) / mass;
   return {
     result: n(iy) + " g I₂ / 100 g",
-    msg: iy <= 120 ? "Dentro del límite de referencia indicado en el guion (≤ 120)." : "Por encima del límite de referencia indicado en el guion (120).",
+    msg: iy <= 120 ? "Dentro del límite de referencia (≤ 120 g I₂/100 g)." : "Por encima del límite de referencia (120 g I₂/100 g).",
   };
 }
 
@@ -228,7 +227,7 @@ function Calculator() {
   );
   return (
     <section>
-      <div className="layout">
+      <div>
         <div className="card calc">
           <div className="stepnum">Tratamiento de datos</div>
           <h2>Calcula el índice de yodo</h2>
@@ -241,19 +240,7 @@ function Calculator() {
             {field("conc", "Concentración de Na₂S₂O₃ (mol/L)")}
             {field("mass", "Masa de biodiésel (g)", "Masa pesada")}
           </div>
-          <div className="result">
-            <span className="eyebrow" style={{ color: "#9dbeba" }}>Resultado experimental</span>
-            <strong>{result}</strong>
-            <span>{msg}</span>
-          </div>
-        </div>
-        <div className="card side">
-          <div className="stepnum">Interpretación</div>
-          <h3>Qué mide el resultado</h3>
-          <p>El índice expresa los gramos de yodo equivalentes consumidos por cada 100 g de muestra. La diferencia entre blanco y muestra refleja el ICl consumido por las insaturaciones.</p>
-          <div className="rule" />
-          <p>El guion de la práctica utiliza como referencia un límite de 120 g I₂/100 g para biodiésel conforme a la UNE-EN 14214 citada en él.</p>
-          <div className="notice">Los valores del simulador son ilustrativos y no se trasladan automáticamente al cálculo experimental.</div>
+          <p className="lead" style={{ marginTop: 20 }}><strong>{result}</strong> · {msg}</p>
         </div>
       </div>
     </section>
