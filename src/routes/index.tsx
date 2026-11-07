@@ -210,7 +210,7 @@ function Preparation() {
 
 export function computeIodine(raw: string[]): { result: string; msg: string } {
   if (raw.some((x) => x === "")) return { result: "Introduce los datos", msg: "El cálculo se actualiza automáticamente." };
-  const [b, m, c, mass] = raw.map(Number);
+  const [b = 0, m = 0, c = 0, mass = 0] = raw.map(Number);
   if (b < 0 || m < 0 || c <= 0 || mass <= 0 || b < m)
     return { result: "Revisa los datos", msg: "Los valores deben ser positivos y el volumen del blanco no puede ser menor que el de la muestra." };
   const iy = ((b - m) * c * 12.7) / mass;
