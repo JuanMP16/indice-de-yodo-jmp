@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
 
 const n = (x: number) => x.toFixed(2).replace(".", ",");
 type Kind = "sample" | "blank";
-const endOf = (k: Kind) => (k === "sample" ? 1.5 : 19.5);
+const endOf = (k: Kind) => (k === "sample" ? 8 : 19.5);
 
 function Index() {
   const [tab, setTab] = useState<"valoracion" | "preparacion" | "calculo">("valoracion");
