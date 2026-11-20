@@ -96,7 +96,7 @@ function Titration() {
   const lerp = (a: number[], b: number[], t: number) => a.map((c, i) => Math.round(c + ((b[i] ?? c) - c) * Math.min(Math.max(t, 0), 1)));
   const fade = Math.min(p / 0.78, 1);
   const color = starch && !done
-    ? "#b7bab4"
+    ? "#e9c6cb"
     : kind === "sample"
       ? v < paleAt
         ? `rgb(${lerp([58, 16, 12], [226, 184, 40], v / paleAt).join(",")})`
@@ -109,8 +109,8 @@ function Titration() {
     [258, 314, 1.9], [278, 318, 1.4], [212, 333, 1.6], [300, 338, 2.0], [246, 336, 1.3],
   ] as const;
   const opacity = done ? 0.12 : starch ? 0.95 - (1 - turbidity) * 0.75 : kind === "sample" ? 0.85 : 0.85 - fade * 0.5;
-  const state = done ? "Punto final ilustrativo · disolución transparente" : starch ? "Almidón añadido · precipitado grisáceo turbio" : pale ? (kind === "sample" ? "Casi transparente · añadir almidón" : "Color muy pálido · añadir almidón") : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color rojo negruzco inicial · valorar con tiosulfato");
-  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado grisáceo y la disolución quede transparente.");
+  const state = done ? "Punto final ilustrativo · disolución transparente" : starch ? "Almidón añadido · precipitado rosa pálido turbio" : pale ? (kind === "sample" ? "Casi transparente · añadir almidón" : "Color muy pálido · añadir almidón") : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Valorar con tiosulfato");
+  const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado rosa pálido turbio." : "Continúa gota a gota hasta que desaparezca el precipitado rosa y la disolución quede transparente.");
 
   const play = () => {
     if (running) { setRunning(false); return; }
@@ -154,10 +154,10 @@ function Titration() {
               {turbidity > 0 && (
                 <g clipPath="url(#flask)">
                   {granules.map(([cx, cy, r], i) => (
-                    <circle key={i} cx={cx} cy={cy} r={r} fill="#6f7370" fillOpacity={0.75 * turbidity} />
+                    <circle key={i} cx={cx} cy={cy} r={r} fill="#c48890" fillOpacity={0.75 * turbidity} />
                   ))}
                   {granules.map(([cx, cy, r], i) => (
-                    <circle key={`h${i}`} cx={cx + 3} cy={cy - 4} r={r * 0.6} fill="#8a8e89" fillOpacity={0.5 * turbidity} />
+                    <circle key={`h${i}`} cx={cx + 3} cy={cy - 4} r={r * 0.6} fill="#dbaab0" fillOpacity={0.5 * turbidity} />
                   ))}
                 </g>
               )}
