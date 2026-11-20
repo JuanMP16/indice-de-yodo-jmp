@@ -66,15 +66,17 @@ function Titration() {
   starchRef.current = starch;
 
   const end = endOf(kind);
+  const paleAt = kind === "sample" ? 6 : end * 0.78;
+  const starchAt = kind === "sample" ? 7 : end * 0.78;
   const p = v / end;
-  const pale = p >= 0.78;
+  const pale = v >= paleAt;
   const done = p >= 1;
 
   useEffect(() => {
     if (!running) return;
     const t = setInterval(() => {
       const cur = vRef.current;
-      if (cur / end >= 0.78 && !starchRef.current) {
+      if (cur >= starchAt && !starchRef.current) {
         setRunning(false);
         setMsg("Añade almidón antes de continuar la valoración.");
         return;
@@ -85,23 +87,29 @@ function Titration() {
       if (nv >= end) setRunning(false);
     }, 65);
     return () => clearInterval(t);
-  }, [running, end]);
+  }, [running, end, starchAt]);
 
   const select = (k: Kind) => {
     setRunning(false); setKind(k); setV(0); setStarch(false); setStarted(false); setMsg(null);
   };
 
-  const base = kind === "blank" ? [176, 58, 36] : [226, 184, 40];
+  const lerp = (a: number[], b: number[], t: number) => a.map((c, i) => Math.round(c + (b[i] - c) * Math.min(Math.max(t, 0), 1)));
   const fade = Math.min(p / 0.78, 1);
-  const color = starch && pale && !done ? "#b7bab4" : `rgb(${base.map((c) => Math.round(c + (240 - c) * fade * 0.85)).join(",")})`;
-  const turbidity = starch && pale && !done ? 1 - (p - 0.78) / 0.22 : 0;
+  const color = starch && !done
+    ? "#b7bab4"
+    : kind === "sample"
+      ? v < paleAt
+        ? `rgb(${lerp([58, 16, 12], [226, 184, 40], v / paleAt).join(",")})`
+        : `rgb(${lerp([226, 184, 40], [242, 242, 238], (v - paleAt) / (starchAt - paleAt)).join(",")})`
+      : `rgb(${[176, 58, 36].map((c) => Math.round(c + (240 - c) * fade * 0.85)).join(",")})`;
+  const turbidity = starch && !done ? Math.min(Math.max(1 - (v - starchAt) / (end - starchAt), 0), 1) : 0;
   const granules = [
     [205, 322, 2.4], [228, 332, 1.8], [250, 326, 2.8], [272, 334, 2.1], [292, 324, 1.7],
     [218, 341, 2.2], [240, 346, 1.6], [262, 340, 2.5], [284, 344, 1.9], [236, 316, 1.5],
     [258, 314, 1.9], [278, 318, 1.4], [212, 333, 1.6], [300, 338, 2.0], [246, 336, 1.3],
   ] as const;
-  const opacity = done ? 0.12 : starch && pale ? 0.95 - ((p - 0.78) / 0.22) * 0.75 : 0.85 - fade * 0.5;
-  const state = done ? "Punto final ilustrativo · disolución transparente" : starch && pale ? "Almidón añadido · precipitado grisáceo turbio" : pale ? "Color muy pálido · añadir almidón" : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color amarillento inicial · valorar con tiosulfato");
+  const opacity = done ? 0.12 : starch ? 0.95 - (1 - turbidity) * 0.75 : kind === "sample" ? 0.85 : 0.85 - fade * 0.5;
+  const state = done ? "Punto final ilustrativo · disolución transparente" : starch ? "Almidón añadido · precipitado grisáceo turbio" : pale ? (kind === "sample" ? "Casi transparente · añadir almidón" : "Color muy pálido · añadir almidón") : (kind === "blank" ? "Color rojizo inicial · valorar con tiosulfato" : "Color rojo negruzco inicial · valorar con tiosulfato");
   const hint = msg ?? (done ? "Fin ilustrativo. Anota el volumen experimental obtenido en la bureta." : !pale ? (v === 0 && !started ? "El punto final representado es orientativo; el valor experimental debe leerse en la bureta. La coloración del indicador puede no observarse." : "La animación representa un punto final orientativo; no es un resultado experimental.") : !starch ? "Añade unas gotas de almidón: se formará un precipitado blanco turbio." : "Continúa gota a gota hasta que desaparezca el precipitado grisáceo y la disolución quede transparente.");
 
   const play = () => {
@@ -110,7 +118,7 @@ function Titration() {
     setStarted(true); setMsg(null); setRunning(true);
   };
   const addStarch = () => {
-    if (v / end < 0.78) { setMsg("Espera a que la disolución alcance una tonalidad amarillo pálido para añadir el almidón."); return; }
+    if (v < paleAt) { setMsg(kind === "sample" ? "Espera a que la disolución esté prácticamente transparente para añadir el almidón." : "Espera a que la disolución alcance una tonalidad amarillo pálido para añadir el almidón."); return; }
     if (v >= end) { setMsg("La valoración ya ha llegado al punto final ilustrativo. Reinicia para repetirla."); return; }
     setStarch(true); setMsg(null);
   };
@@ -200,7 +208,7 @@ function Titration() {
 
 const STEPS = [
   ["Preparar las disoluciones", "Preparar 100 mL de KI al 10 % (m/v) y 100 mL de Na₂S₂O₃ 0,4 M, ambos con agua destilada."],
-  ["Disolver la muestra", "Pesar 5,0 g de biodiésel y añadir 10 mL de diclorometano. Agitar suavemente hasta homogeneizar."],
+  ["Disolver la muestra", "Pesar 0,5 g de biodiésel y añadir 10 mL de diclorometano. Agitar suavemente hasta homogeneizar."],
   ["Añadir Wijs", "Incorporar 20 mL de reactivo de Wijs, tapar y mantener 30 minutos en oscuridad."],
   ["Liberar el yodo", "Añadir 15 mL de KI al 10 % (m/v), después 100 mL de agua destilada y agitar suavemente."],
   ["Preparar el blanco", "Repetir el mismo procedimiento y cantidades en ausencia de biodiésel, incluidos los 30 minutos en oscuridad."],
