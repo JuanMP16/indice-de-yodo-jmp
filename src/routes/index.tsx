@@ -93,7 +93,7 @@ function Titration() {
     setRunning(false); setKind(k); setV(0); setStarch(false); setStarted(false); setMsg(null);
   };
 
-  const lerp = (a: number[], b: number[], t: number) => a.map((c, i) => Math.round(c + (b[i] - c) * Math.min(Math.max(t, 0), 1)));
+  const lerp = (a: number[], b: number[], t: number) => a.map((c, i) => Math.round(c + ((b[i] ?? c) - c) * Math.min(Math.max(t, 0), 1)));
   const fade = Math.min(p / 0.78, 1);
   const color = starch && !done
     ? "#b7bab4"
